@@ -1,0 +1,71 @@
+# Node modules
+node_modules/
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Next.js cache
+.next/cache/
+
+# Production / local env files
+.env
+.env.local
+.env.*.local
+
+# Lockfiles (ignore if you do NOT want to commit lockfiles)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+logs
+*.log
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor directories & caches
+.vscode/
+.idea/
+.history/
+.cache/
+
+# TypeScript
+*.tsbuildinfo
+
+# Cache and coverage
+.cache/
+coverage/
+dist/
+.nyc_output/
+
+# Parcel / other caches
+.parcel-cache/
+.sass-cache/
+
+# Build systems
+dist/
+build/
+
+# Turborepo / monorepo
+.turbo/
+
+# Vercel
+.vercel/
+.vercel_build_output/
+
+# Yarn PnP
+.pnp.cjs
+.pnp.js
+
+# Misc
+.parcel-cache/

@@ -1,0 +1,25 @@
+# Normalize line endings and enforce LF for source files
+# Treat all files as text by default and let Git decide
+* text=auto
+
+# Force LF for common source and config files (recommended for cross-platform projects)
+*.json text eol=lf
+*.js   text eol=lf
+*.jsx  text eol=lf
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.css  text eol=lf
+*.scss text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.html text eol=lf
+
+# Binary files (do not treat as text)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+
+# End of file

@@ -1,3 +1,4 @@
+// @ts-ignore: Cannot find module or type declarations for side-effect import of './globals.css'.
 import './globals.css'
 
 export const metadata = {

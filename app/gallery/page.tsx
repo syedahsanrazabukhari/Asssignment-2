@@ -1,221 +1,210 @@
-"use client"
-import React, { useEffect } from 'react'
+"use client";
+import { useEffect, useRef } from "react";
 
 export default function GalleryPage() {
+  const galleryRef = useRef<HTMLDivElement | null>(null);
+  const starsRef = useRef<HTMLDivElement | null>(null);
+  const heartsRef = useRef<HTMLDivElement | null>(null);
+  const spotlightRef = useRef<HTMLDivElement | null>(null);
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
-    // mark body with gallery class so gallery-specific body styles apply
-    document.body.classList.add('gallery')
-
-    function createStars() {
-      const starsContainer = document.querySelector('.stars')
-      if (!starsContainer) return
+    // === Stars ===
+    const starsContainer = starsRef.current;
+    if (starsContainer) {
+      starsContainer.innerHTML = "";
       for (let i = 0; i < 200; i++) {
-        const star = document.createElement('div')
-        star.className = 'star'
-        const size = Math.random() * 3
-        star.style.width = size + 'px'
-        star.style.height = size + 'px'
-        star.style.left = Math.random() * 100 + '%'
-        star.style.top = Math.random() * 100 + '%'
-        star.style.animationDelay = Math.random() * 2 + 's'
-        starsContainer.appendChild(star)
+        const star = document.createElement("div");
+        star.className = "star";
+        const size = Math.random() * 3;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.animationDelay = `${Math.random() * 2}s`;
+        starsContainer.appendChild(star);
       }
     }
 
-    function createFloatingHearts() {
-      const heartsContainer = document.querySelector('.floating-hearts')
-      if (!heartsContainer) return
-      const heartSymbols = ['♥', '❤', '💕', '💖', '💗']
+    // === Floating Hearts ===
+    const heartsContainer = heartsRef.current;
+    if (heartsContainer) {
+      heartsContainer.innerHTML = "";
+      const heartSymbols = ["♥", "❤", "💕", "💖", "💗"];
       for (let i = 0; i < 30; i++) {
-        const heart = document.createElement('div')
-        heart.className = 'heart'
-        heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)]
-        heart.style.left = Math.random() * 100 + '%'
-        heart.style.animationDuration = 15 + Math.random() * 15 + 's'
-        heart.style.animationDelay = Math.random() * 5 + 's'
-        heart.style.fontSize = 10 + Math.random() * 20 + 'px'
-        heart.style.opacity = String(0.5 + Math.random() * 0.5)
-        heart.style.color = `rgba(255, ${Math.floor(100 + Math.random() * 100)}, ${Math.floor(100 + Math.random() * 100)}, ${0.5 + Math.random() * 0.5})`
-        heartsContainer.appendChild(heart)
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+        heart.style.left = `${Math.random() * 100}%`;
+        heart.style.animationDuration = `${15 + Math.random() * 15}s`;
+        heart.style.animationDelay = `${Math.random() * 5}s`;
+        heart.style.fontSize = `${10 + Math.random() * 20}px`;
+        heart.style.opacity = `${0.5 + Math.random() * 0.5}`;
+        heart.style.color = `rgba(255, ${Math.floor(100 + Math.random() * 100)}, ${Math.floor(100 + Math.random() * 100)}, ${0.5 + Math.random() * 0.5})`;
+        heartsContainer.appendChild(heart);
       }
     }
 
-    // create gallery elements
-    function createGallery() {
-      const gallery = document.querySelector('.gallery')
-      if (!gallery) return
-      const totalCards = 10
-      // scale radius based on container width so the carousel centers inside the max-width
-      const containerWidth = Math.min(window.innerWidth, 1100)
-      const radius = window.innerWidth < 768 ? 260 : Math.max(260, containerWidth * 0.35)
-      let currentAngle = 0
-      let isDragging = false
-      let startX = 0
-      let currentX = 0
-      let autoRotateInterval: any
+    // === Gallery Cards ===
+    const gallery = galleryRef.current;
+    if (!gallery) return;
+    gallery.innerHTML = "";
 
-      const prevButton = document.querySelector('.nav-button.prev')
-      const nextButton = document.querySelector('.nav-button.next')
+    const totalCards = 10;
+    const radius = window.innerWidth < 768 ? 350 : 500;
+    let currentAngle = 0;
+    let isDragging = false;
+    let startX = 0;
+    let currentX = 0;
+    let autoRotateInterval: any = null;
 
-      const imageUrls = [
-        '/pic1.jpg','/pic2.jpg','/pic3.jpg','/pic4.jpg','/pic5.jpg','/pic6.jpg','/pic7.jpg','/pic8.jpg','/pic9.jpg','/pic5.jpg'
-      ]
+    const imageUrls = [
+      "pic1.jpg","pic2.jpg","pic3.jpg","pic4.jpg","pic5.jpg",
+      "pic6.jpg","pic7.jpg","pic8.jpg","pic9.jpg","pic10.jpg"
+    ];
 
-      for (let i = 0; i < totalCards; i++) {
-        const card = document.createElement('div')
-        card.className = 'card'
-        card.innerHTML = `\n                    <img src="${imageUrls[i]}" alt="Memories ${i + 1}">\n                    <div class="number">${i + 1}</div>\n                `
-        // position each card's origin at the center of the gallery so translate3d offsets are centered
-        card.style.left = '50%'
-        card.style.top = '50%'
-        gallery.appendChild(card)
-      }
-
-      function updateCards(extraRotation = 0) {
-        const cards = document.querySelectorAll('.card')
-        cards.forEach((card, index) => {
-          const angle = (currentAngle + extraRotation + (index * (360 / totalCards))) * (Math.PI / 180)
-          const x = Math.sin(angle) * radius
-          const z = Math.cos(angle) * radius
-          const rotateY = angle * (180 / Math.PI)
-          const rawAngle = (currentAngle + extraRotation + (index * (360 / totalCards)))
-          const normalizedAngle = ((rawAngle % 360) + 360) % 360
-          const distToFront = Math.min(Math.abs(normalizedAngle - 0), Math.abs(normalizedAngle - 360))
-          const isSmall = window.innerWidth < 768
-          const isFront = (normalizedAngle > 350 || normalizedAngle < 10) && !isSmall
-          let scaleVal
-          let zOffset = 0
-          if (isSmall) { scaleVal = 1; zOffset = 0 } else { scaleVal = isFront ? 1.09 : 1 - (distToFront / 900); zOffset = isFront ? 100 : 0 }
-          // translate3d moves the card relative to its center (we set left/top=50%),
-          // then we translate -50%,-50% so the card's center aligns correctly.
-          ;(card as HTMLElement).style.transform = `translate3d(${x}px, 0, ${z + zOffset}px) rotateY(${rotateY}deg) scale(${scaleVal}) translate(-50%,-50%)`
-          if (isFront) card.classList.add('active'); else card.classList.remove('active')
-          // Avoid calling Math.max directly in case runtime has it shadowed; use a safe clamp.
-          let opacity = isSmall ? 1 : 1 - (distToFront / 240)
-          if (!isSmall && opacity < 0.30) { opacity = 0.30 }
-          const elCard = card as HTMLElement
-          elCard.style.opacity = opacity.toFixed(3)
-        })
-      }
-
-      function startAutoRotate() {
-        clearInterval(autoRotateInterval)
-        autoRotateInterval = setInterval(() => { currentAngle -= 0.3; updateCards() }, 100)
-      }
-
-      function rotateGallery(direction: number) {
-        clearInterval(autoRotateInterval)
-        currentAngle += direction * 36
-        updateCards()
-        setTimeout(() => { if (!isDragging) startAutoRotate() }, 5000)
-      }
-
-      prevButton?.addEventListener('click', () => rotateGallery(-1))
-      nextButton?.addEventListener('click', () => rotateGallery(1))
-
-      gallery.addEventListener('mousedown', (e) => {
-        isDragging = true; startX = (e as MouseEvent).clientX; currentX = currentAngle; clearInterval(autoRotateInterval); (gallery as HTMLElement).style.cursor = 'grabbing'
-      })
-
-      window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return
-        const diff = ((e as MouseEvent).clientX - startX) * 0.5
-        currentAngle = currentX - diff
-        updateCards()
-      })
-
-      window.addEventListener('mouseup', () => { isDragging = false; (gallery as HTMLElement).style.cursor = 'grab'; setTimeout(() => { if (!isDragging) startAutoRotate() }, 3000) })
-
-      // touch events
-      gallery.addEventListener('touchstart', (e) => {
-        isDragging = true; startX = (e as TouchEvent).touches[0].clientX; currentX = currentAngle; clearInterval(autoRotateInterval)
-      })
-      window.addEventListener('touchmove', (e) => {
-        if (!isDragging) return
-        const diff = ((e as TouchEvent).touches[0].clientX - startX) * 0.5
-        currentAngle = currentX - diff; updateCards()
-      }, { passive: false })
-      window.addEventListener('touchend', () => { isDragging = false; setTimeout(() => { if (!isDragging) startAutoRotate() }, 3000) })
-
-      updateCards()
-      startAutoRotate()
+    for (let i = 0; i < totalCards; i++) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<img src="${imageUrls[i]}" alt="Memories ${i + 1}"><div class="number">${i+1}</div>`;
+      gallery.appendChild(card);
     }
 
-    createStars(); createFloatingHearts(); createGallery()
+    const cards = Array.from(gallery.querySelectorAll(".card"));
 
-    // Move spotlight with mouse
-    function handleMouse(e: MouseEvent) {
-      const spotlight = document.querySelector('.spotlight') as HTMLElement
-      if (!spotlight) return
-      spotlight.style.left = e.clientX + 'px'
-      spotlight.style.top = e.clientY + 'px'
+    function updateCards(extraRotation = 0) {
+      cards.forEach((card, index) => {
+        const angle = (currentAngle + extraRotation + index * (360 / totalCards)) * (Math.PI / 180);
+        const x = Math.sin(angle) * radius;
+        const z = Math.cos(angle) * radius;
+        const y = 20;
+        const rotateY = (angle * 180) / Math.PI;
+
+        (card as HTMLElement).style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotateY}deg)`;
+
+        const normalizedAngle = ((currentAngle + extraRotation + index * (360 / totalCards)) % 360 + 360) % 360;
+        (card as HTMLElement).classList.toggle("active", normalizedAngle < 10 || normalizedAngle > 350);
+
+        // Front bright, back dim
+        let opacity = 0.3 + (Math.abs(normalizedAngle - 180) / 180) * 0.7;
+        if (opacity > 1) opacity = 1;
+        if (opacity < 0.3) opacity = 0.3;
+        (card as HTMLElement).style.opacity = String(opacity);
+      });
     }
-    document.addEventListener('mousemove', handleMouse)
 
-    // Music controls (same logic as original)
-    let musicStarted = false
-    function startMusic() {
-      const bgMusic = document.getElementById('bgMusic') as HTMLAudioElement | null
-      if (!bgMusic) return
-      if (!bgMusic.paused) { musicStarted = true; return }
-      bgMusic.volume = 0.5
-      const p: any = bgMusic.play()
-      if (p && typeof p.then === 'function') {
-        p.then(() => { musicStarted = true; updateMusicButton(true) }).catch(() => updateMusicButton(false))
-      } else { musicStarted = true; updateMusicButton(true) }
+    // === Dragging ===
+    gallery.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      currentX = currentAngle;
+      gallery.style.cursor = "grabbing";
+      clearInterval(autoRotateInterval);
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const diff = (e.clientX - startX) * 0.5;
+      currentAngle = currentX + diff;
+      updateCards();
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+      gallery.style.cursor = "grab";
+      setTimeout(() => startAutoRotate(), 3000);
+    });
+
+    // === Auto Rotate ===
+    function startAutoRotate() {
+      clearInterval(autoRotateInterval);
+      autoRotateInterval = setInterval(() => {
+        currentAngle += 0.3;
+        updateCards();
+      }, 100);
     }
-    function pauseMusic() { const bgMusic = document.getElementById('bgMusic') as HTMLAudioElement | null; if (!bgMusic) return; bgMusic.pause(); musicStarted = false; updateMusicButton(false) }
-    function toggleMusic() { const bgMusic = document.getElementById('bgMusic') as HTMLAudioElement | null; if (!bgMusic) return; if (bgMusic.paused) startMusic(); else pauseMusic() }
-    function updateMusicButton(isPlaying: boolean) { const btn = document.getElementById('musicToggle'); if (!btn) return; btn.textContent = isPlaying ? 'Pause' : 'Play' }
 
-    // Try to auto-play if requested
-    document.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search)
-      const wantPlay = params.get('play') === '1' || localStorage.getItem('playMusicRequested') === '1'
-      if (wantPlay) { startMusic(); try { localStorage.removeItem('playMusicRequested') } catch (e) {} }
-      const musicBtn = document.getElementById('musicToggle')
-      if (musicBtn) musicBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMusic() })
-    })
+    updateCards();
+    startAutoRotate();
 
-    // fallback one-time listeners
-    document.body.addEventListener('click', startMusic, { once: true } as any)
-    document.body.addEventListener('touchstart', startMusic, { once: true } as any)
+    // Spotlight follow
+    const mouseMoveHandler = (e: MouseEvent) => {
+      if (spotlightRef.current) {
+        (spotlightRef.current as HTMLElement).style.left = `${e.clientX}px`;
+        (spotlightRef.current as HTMLElement).style.top = `${e.clientY}px`;
+      }
+    };
+    window.addEventListener("mousemove", mouseMoveHandler);
+
+    // Music play
+    let musicStarted = false;
+    const startMusic = () => {
+      if (musicStarted) return;
+      if (bgMusicRef.current) {
+        bgMusicRef.current.volume = 0.5;
+        bgMusicRef.current.play().catch(() => {});
+        musicStarted = true;
+      }
+    };
+    document.body.addEventListener("click", startMusic, { once: true });
+    document.body.addEventListener("touchstart", startMusic, { once: true });
 
     return () => {
-      document.body.classList.remove('gallery')
-      document.removeEventListener('mousemove', handleMouse)
-    }
-  }, [])
+      clearInterval(autoRotateInterval);
+      window.removeEventListener("mousemove", mouseMoveHandler);
+    };
+  }, []);
 
   return (
-    <main>
+    <>
+      <style jsx>{`
+        :global(body){
+          margin:0;padding:0;overflow:hidden;font-family:Arial;display:flex;justify-content:center;align-items:center;min-height:100vh;
+          background:linear-gradient(135deg,#ff9a9e,#fad0c4,#a18cd1,#fbc2eb);
+        }
+        .title-container{
+          position:fixed;top:20px;width:100%;text-align:center;z-index:1000;pointer-events:none;
+        }
+        .title{font-family:'Brush Script MT', cursive;font-size:60px;color:white;margin:0;animation:float 3s ease-in-out infinite;}
+        .subtitle{font-size:18px;color:white;margin-top:10px;opacity:.9;}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        .spotlight{position:fixed;top:0;left:50%;width:500px;height:500px;transform:translateX(-50%);background:radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 70%);pointer-events:none;z-index:2;animation:spotlightPulse 4s infinite;}
+        @keyframes spotlightPulse{0%,100%{opacity:.5}50%{opacity:.9}}
+        .stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+        .star{position:absolute;background:white;border-radius:50%;animation:twinkle 1.5s infinite ease-in-out;}
+        @keyframes twinkle{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+        .gallery-container{position:fixed;top:58%;left:50%;transform:translate(-50%,-50%);width:100vw;height:100vh;display:flex;justify-content:center;align-items:center;perspective:2000px;z-index:1;}
+        .gallery{position:relative;width:300px;height:400px;transform-style:preserve-3d;transition:transform .5s ease-out;z-index:3;}
+        .center-heart{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;z-index:2;border-radius:15px;}
+        .center-heart img{width:100%;height:100%;object-fit:cover;border-radius:15px;filter:brightness(1.1) saturate(1.2);}
+        .card{position:absolute;width:300px;height:400px;background:rgba(255,255,255,0.2);border-radius:15px;backdrop-filter:blur(5px);border:2px solid rgba(255,255,255,0.6);transition:all .6s cubic-bezier(.4,0,.2,1);cursor:pointer;overflow:hidden;transform-origin:center center;box-shadow:0 10px 30px rgba(0,0,0,0.3);z-index:4;}
+        .card img{width:100%;height:100%;object-fit:cover;transform:scale(1.1);transition:transform .5s;}
+        .card:hover img{transform:scale(1.2);}
+        .card.active{transform:scale(1.2) translateZ(200px);box-shadow:0 20px 60px rgba(255,192,203,0.6);border:3px solid rgba(255,255,255,0.9);}
+        @media(max-width:768px){
+          .title{font-size:40px;}
+          .gallery-container{transform:translate(-50%,-45%);}
+          .center-heart{width:60px;height:60px;}
+        }
+      `}</style>
+
       <div className="title-container">
-        <h1 className="title">A Small gift for U</h1>
-        <p className="subtitle" />
-        <button id="musicToggle" aria-label="Play or pause music" style={{ zIndex: 1100, padding: '8px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.25)', border: '1px solid rgba(255,255,255,0.6)', color: 'white', cursor: 'pointer' }}>Play</button>
+        <h1 className="title">♥ <b>"Happy Memories A special gallery for you"</b></h1>
+        <p className="subtitle"></p>
       </div>
 
-      <div className="ambient-light" />
-      <div className="spotlight" />
-      <div className="stars" />
-      <div className="floating-hearts" />
-      {/* nav buttons will be rendered inside the gallery container so they center with it */}
+      <div className="stars" ref={starsRef}></div>
+      <div className="floating-hearts" ref={heartsRef}></div>
+      <div className="spotlight" ref={spotlightRef}></div>
 
       <div className="gallery-container">
-        <div className="gallery-wrap">
-          <div className="gallery">
-            <div className="center-heart">
-              <img src="/hurt.png" alt="Heart for Mom" />
-            </div>
-          </div>
+        <div className="gallery" ref={galleryRef}></div>
+        <div className="center-heart">
+          <img src="/heart.png" alt="Center Heart" />
         </div>
-        <button className="nav-button prev" aria-label="Previous" />
-        <button className="nav-button next" aria-label="Next" />
       </div>
 
-      <audio id="bgMusic" loop>
-        <source src="/romantic2.mp3" type="audio/mpeg" />
-      </audio>
-    </main>
-  )
+      <audio ref={bgMusicRef} src="/romantic2.mp3" loop />
+    </>
+  );
 }

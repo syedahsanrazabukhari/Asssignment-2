@@ -200,7 +200,7 @@ export default function GalleryPage() {
       <div className="gallery-container">
         <div className="gallery" ref={galleryRef}></div>
         <div className="center-heart">
-          <img src="/heart.png" alt="Center Heart" />
+          <img src="/hurt.png" alt="Center Heart" />
         </div>
       </div>
 

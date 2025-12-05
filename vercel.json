@@ -1,5 +1,10 @@
 {
-  "redirects": [
-    { "source": "/", "destination": "/gallery", "permanent": true }
+  "version": 2,
+  "builds": [
+    { "src": "package.json", "use": "@vercel/next" }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/app/page.tsx" },
+    { "src": "/gallery", "dest": "/app/gallery/page.tsx" }
   ]
 }
